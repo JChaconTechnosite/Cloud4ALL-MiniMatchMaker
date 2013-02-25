@@ -11,7 +11,7 @@ This project was designed as a demo for Mini Match maker. it includes a simulato
 This project has been developed by Technosite R&D department.
 Mini match maker is shared under New BSD license. This project folder includes a license file.
 You can share and distribute this project and built software using New BSD license.
-Please, send any feedback to http://www.cloud4all.info
+Please, send any feedback to info@cloud4all.info
 
 ## Demo
 The simulator let you change brightness and noise level.
