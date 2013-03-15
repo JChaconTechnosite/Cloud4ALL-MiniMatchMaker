@@ -1,8 +1,13 @@
 package com.cloud4all.minimatchmaker;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import org.json.JSONObject;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
@@ -41,8 +46,48 @@ public class MiniMatchMakerService extends Service {
 	private MiniMatchMakerListener listener = null;
 
 	@Override
+	public void onCreate() {
+		super.onCreate();
+		engine = new MiniMatchMakerEngine(this);
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();	
+	}
+		
+		@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		return Service.START_NOT_STICKY;
+			try {
+				HashMap<String,String> list = new HashMap<String,String>();
+				CloudIntent cloudinfo = CloudIntent.intentToCloudIntent(intent);
+				int event = cloudinfo.getIdEvent();
+				manageArgumentsInPetition(cloudinfo );
+								switch (event) {
+								case CommunicationPersistence.EVENT_ARE_REPORTER :
+									list.put("are","yes");
+																		sendCommunication(CommunicationPersistence.EVENT_ARE_REPORTER_RESPONSE,list );
+					break;
+				case CommunicationPersistence.EVENT_STORAGE_REPORTER  :
+					list.put("message","OK");
+					sendCommunication(CommunicationPersistence.EVENT_STORAGE_REPORTER_RESPONSE ,list );
+					break;
+				case CommunicationPersistence.EVENT_GET_CONFIGURATION   :
+					list.put("Type","complete");
+					list.put("BrightnessMode","UNKNOWN");
+					list.put("Brightness","0");
+					list.put("FontSize","15");
+					sendCommunication(CommunicationPersistence.EVENT_GET_CONFIGURATION_RESPONSE ,list );
+					break;
+					default :
+						break;
+				}
+								// reset arguments from petition
+								arguments = null;
+						} catch (Exception e) {
+				Log.e("MiniMatchMakerService error in onStartCommand", "Error managing the intent.\n"+e);
+			}
+			return super.onStartCommand(intent, flags, startId);
 	}
 
 	@Override
@@ -50,20 +95,20 @@ public class MiniMatchMakerService extends Service {
 		return mBinder;
 	}
 
+	@Override
+	public boolean onUnbind(Intent intent) {
+		return super.onUnbind(intent);
+	}
+	
 	public class MyBinder extends Binder {
 		MiniMatchMakerService getService() {
 			return MiniMatchMakerService.this;
 		}
 	}
 
-	public MiniMatchMakerService() {
-		engine = new MiniMatchMakerEngine(this);
-	}
-
 	public MiniMatchMakerEngine getEngine() {
 		return engine;
 	}
-
 
 	// ** Listener
 
@@ -89,6 +134,44 @@ public class MiniMatchMakerService extends Service {
 		}
 	}
 
+	// ** Methods for communication with Orquestator
 
+	private HashMap<String,String> arguments = null;
+	
+	private void manageArgumentsInPetition(CloudIntent intent) {
+		String[] args;
+		try {
+			arguments = new HashMap<String,String>();
+			args = intent.getArrayIds();
+			for (int i = 0; i < args.length; i++){
+				String paramName = args[i];
+				String paramValue = intent.getValue(args[i]);
+				arguments.put(paramName, paramValue);
+			}
+					} catch (Exception e) {
+			Log.e("MiniMatchMakerService error in ManagePettition", "Error in Intent management.\n" +e);
+		}
+	}
 
+	private void sendCommunication(int CloudEvent, Map<String, String> params) {
+		try {
+			CloudIntent intent = new CloudIntent(CommunicationPersistence.ACTION_ORCHESTRATOR, CloudEvent,CommunicationPersistence.MODULE_MINI_MATCH_MAKER);
+			// manage params
+			Iterator<Map.Entry<String,String>> it = params.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<String, String> e = (Map.Entry<String, String>) it.next();
+				intent.setParams(e.getKey(), e.getValue());	
+			}
+				
+			
+			Context ct = getApplicationContext();
+			ct.sendBroadcast(intent);
+		} catch (Exception e) {
+			Log.e("MiniMatchMakerBroadcastManager error in sendCommunication", "Error sending broadcast.\n" +e);
+		}
+		}
+
+	
+
+	
 }

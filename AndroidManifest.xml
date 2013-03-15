@@ -16,16 +16,25 @@
         <activity
             android:name="com.cloud4all.minimatchmaker.Viewer"
             android:label="@string/app_name" >
+            
+            <receiver android:name="com.cloud4all.minimatchmaker.MiniMatchMakerReceiver" >
             <intent-filter>
+                <action android:name="cloudMiniMatchMaker" />
+            </intent-filter>
+        </receiver>
+        
+            
+            
+            <intent-filter>
+                <!--
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+                -->
             </intent-filter>
         </activity>
         <service android:name="MiniMatchMakerService"
              android:label="MiniMatchMaker">
-            >
-           </service>
+                       </service>
     </application>
 
 </manifest>
