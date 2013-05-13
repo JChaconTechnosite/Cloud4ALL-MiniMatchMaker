@@ -96,8 +96,8 @@ public class MiniMatchMakerService extends Service {
 					list.put("notification_sound","http://www.fundacionvf.es/prueba.ogg");
 					list.put("font_scale","1.5");
 					list.put("show_window","1");
-					list.put("windows_width",engine.getDeviceInfoForKey("screenWidth"));
-					list.put("windows_height",engine.getDeviceInfoForKey("screenHeight"));
+					list.put("windows_width",engine.getDeviceInfoForKey("Screen width"));
+					list.put("windows_height",engine.getDeviceInfoForKey("Screen height"));
 					list.put("text_color_notification","#FFFF00");
 					list.put("background_color_notification","#0000FF");
 					list.put("notification_vibrate ","1");
