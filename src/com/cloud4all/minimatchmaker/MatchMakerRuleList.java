@@ -18,6 +18,7 @@ public class MatchMakerRuleList {
 	}
 
 	public MatchMakerRuleList() {
+		getRulesFromCloud();
 	}
 
 	// ** Adding rules
@@ -76,28 +77,32 @@ public class MatchMakerRuleList {
 			} catch (JSONException e) {
 				Log.e("MatchMakerRuleList Error in checkRulesWithProperties", "JSON error creating message.\n" +e);
 			}
-
-			// Ask MatchMaker in Cloud for rules
-			MatchMakerCommunicator com = new MatchMakerCommunicator();
-			JSONObject cloudRules = com.getRulesFromCloud();
-			try {
-				// store rules in Mini Match maker
-				String typePackage = cloudRules.getString("type");
-				if (typePackage.equalsIgnoreCase("listofrules")) {
-					Log.i("MatchMakerRuleList", "Receiving rules from the Cloud...");
-					int n = Integer.valueOf(cloudRules.getString("parameters"));
-					for (int i=1;i<=n;i++) {
-						String paramName = "parameter" + String.valueOf(i);
-						JSONObject tmpRule = new JSONObject(cloudRules.getString(paramName));
-						Log.i("MatchMakerRuleList", "Adding " + paramName + " rule.\n JSONString: " + tmpRule.toString());
-						addRule(tmpRule);
-					}
-				}
-			} catch(JSONException e) {
-				Log.e("MatchMakerRuleList  Error in checkRulesWithProperties", "JSON error loading rules from cloud.\n" +e);
-			}
+			getRulesFromCloud();
+				
 		}
 		return result;
 	}
 
+	
+	private void getRulesFromCloud() {
+		// Ask MatchMaker in Cloud for rules
+					MatchMakerCommunicator com = new MatchMakerCommunicator();
+					JSONObject cloudRules = com.getRulesFromCloud();
+					try {
+						// store rules in Mini Match maker
+						String typePackage = cloudRules.getString("type");
+						if (typePackage.equalsIgnoreCase("listofrules")) {
+							Log.i("MatchMakerRuleList", "Receiving rules from the Cloud...");
+							int n = Integer.valueOf(cloudRules.getString("parameters"));
+							for (int i=1;i<=n;i++) {
+								String paramName = "parameter" + String.valueOf(i);
+								JSONObject tmpRule = new JSONObject(cloudRules.getString(paramName));
+								Log.i("MatchMakerRuleList", "Adding " + paramName + " rule.\n JSONString: " + tmpRule.toString());
+								addRule(tmpRule);
+							}
+						}
+					} catch(JSONException e) {
+						Log.e("MatchMakerRuleList  Error in getRulesFromCloud", "JSON error loading rules from cloud.\n" +e);
+					}
+	}
 }

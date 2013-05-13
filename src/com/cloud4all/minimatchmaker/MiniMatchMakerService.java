@@ -62,22 +62,48 @@ public class MiniMatchMakerService extends Service {
 				HashMap<String,String> list = new HashMap<String,String>();
 				CloudIntent cloudinfo = CloudIntent.intentToCloudIntent(intent);
 				int event = cloudinfo.getIdEvent();
+				int id_action = cloudinfo.getIdAction(); 
 				manageArgumentsInPetition(cloudinfo );
 								switch (event) {
+								
 								case CommunicationPersistence.EVENT_ARE_REPORTER :
-									list.put("are","yes");
-																		sendCommunication(CommunicationPersistence.EVENT_ARE_REPORTER_RESPONSE,list );
+									
+			engine.addDeviceInfo(arguments.get("device_reporter").toString() );						
+									engine.makeLogin(arguments.get("user").toString());
+									list.put("message","yes");
+																		sendCommunication(CommunicationPersistence.EVENT_ARE_REPORTER_RESPONSE,list, id_action );
 					break;
 				case CommunicationPersistence.EVENT_STORAGE_REPORTER  :
 					list.put("message","OK");
-					sendCommunication(CommunicationPersistence.EVENT_STORAGE_REPORTER_RESPONSE ,list );
+					sendCommunication(CommunicationPersistence.EVENT_STORAGE_REPORTER_RESPONSE ,list, id_action  );
 					break;
 				case CommunicationPersistence.EVENT_GET_CONFIGURATION   :
-					list.put("Type","complete");
-					list.put("BrightnessMode","UNKNOWN");
-					list.put("Brightness","0");
-					list.put("FontSize","15");
-					sendCommunication(CommunicationPersistence.EVENT_GET_CONFIGURATION_RESPONSE ,list );
+					if (engine.makeLogin(arguments.get("user").toString())) {
+						// the user is logged
+						// nothing to do yet in this version
+					}
+					list.put("features_category","root");
+					list.put("brightness_mode","1");
+					list.put("brightness","250");
+					list.put("sound_effects","1");
+					list.put("music_volume","15");
+					list.put("alarm_volume","7");
+					list.put("dtmf_volume","15");
+					list.put("notification_volume","7");
+					list.put("ring_volume","7");
+					list.put("system_volume","7");
+					list.put("voice_call_volume","5");
+					list.put("notification_sound","http://www.fundacionvf.es/prueba.ogg");
+					list.put("font_scale","1.5");
+					list.put("show_window","1");
+					list.put("windows_width",engine.getDeviceInfoForKey("screenWidth"));
+					list.put("windows_height",engine.getDeviceInfoForKey("screenHeight"));
+					list.put("text_color_notification","#FFFF00");
+					list.put("background_color_notification","#0000FF");
+					list.put("notification_vibrate ","1");
+					list.put("vibrate_pattern","2");
+					
+					sendCommunication(CommunicationPersistence.EVENT_GET_CONFIGURATION_RESPONSE ,list, id_action  );
 					break;
 					default :
 						break;
@@ -153,9 +179,10 @@ public class MiniMatchMakerService extends Service {
 		}
 	}
 
-	private void sendCommunication(int CloudEvent, Map<String, String> params) {
+	private void sendCommunication(int CloudEvent, Map<String, String> params, int idAction) {
 		try {
-			CloudIntent intent = new CloudIntent(CommunicationPersistence.ACTION_ORCHESTRATOR, CloudEvent,CommunicationPersistence.MODULE_MINI_MATCH_MAKER);
+			CloudIntent intent = new CloudIntent(CommunicationPersistence.ACTION_ORCHESTRATOR, CloudEvent,idAction);
+			
 			// manage params
 			Iterator<Map.Entry<String,String>> it = params.entrySet().iterator();
 			while (it.hasNext()) {

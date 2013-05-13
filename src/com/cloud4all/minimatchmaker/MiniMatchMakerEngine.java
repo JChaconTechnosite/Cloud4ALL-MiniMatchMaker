@@ -35,6 +35,7 @@ public class MiniMatchMakerEngine {
 	private 	 MatchMakerRuleList rules = new MatchMakerRuleList();
 	private List<MatchMakerPropertyState> properties = new ArrayList<MatchMakerPropertyState>();
 	private MiniMatchMakerService service = null;
+	
 
 	public MiniMatchMakerEngine(MiniMatchMakerService value) {
 		service = value;
@@ -89,5 +90,46 @@ public class MiniMatchMakerEngine {
 		Log.i("MiniMatchMakerEngine in managePackage", "There are "+ String.valueOf(properties.size()) + " stored properties in Mini Match Maker.");
 	}
 
+	// Device information management
 
+	private MiniMatchMakerDeviceInfo  deviceInfo = null;
+	
+	public void addDeviceInfo(String deviceData) {
+if (deviceInfo != null) deviceInfo = null;
+try {
+JSONObject deviceDataInJSON = new JSONObject(deviceData);
+deviceInfo = new MiniMatchMakerDeviceInfo(deviceDataInJSON ); 
+	} catch (JSONException e) {
+		Log.e("Error MiniMatchMakerEngine", "\n Error creating data for the device.\n" + e);
+			} 
+}
+
+	public String getDeviceInfoForKey(String key) {
+		return deviceInfo.getStringValueForKey(key);
+	}
+
+	
+	// Login management
+	
+	private String userID = null;
+	
+	public boolean isUserLogged() {
+		if (userID == null) return false;
+		else return true;
+	}
+	
+	public boolean makeLogin(String user_id) {
+		if (userID == null) {
+			userID = user_id;
+			return true;
+		} else {
+			// if there is a logged user this function returns false to log in other user
+			if (userID.equalsIgnoreCase(user_id)) {
+				return true;
+			} else {
+			userID = user_id;
+			return false;
+			}
+		}
+	}
 }
