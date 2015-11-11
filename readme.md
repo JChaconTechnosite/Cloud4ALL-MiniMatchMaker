@@ -45,3 +45,9 @@ Match maker and Mini match maker manage data using rules. These rules have to st
 A rule includes a list of conditions and a list of operations.
 A condition can be a boolean or a range.
 
+
+## Funding Acknowledgement
+
+The research leading to these results has received funding from the European
+Union's Seventh Framework Programme (FP7/2007-2013) under grant agreement No.289016
+([Cloud4all](http://www.cloud4all.info/)).
